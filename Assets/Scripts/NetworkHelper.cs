@@ -1,7 +1,6 @@
+
 using Unity.Netcode;
 using UnityEngine;
-
-
 public class NetworkHelper : MonoBehaviour
 {
     void OnGUI()
@@ -35,5 +34,4 @@ public class NetworkHelper : MonoBehaviour
             NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name);
         GUILayout.Label("Mode: " + mode);
     }
-
 }

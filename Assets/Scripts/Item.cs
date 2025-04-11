@@ -10,5 +10,6 @@ public class Item : MonoBehaviour
         CARROT,
         RADISH
     }
+
     public VegetableType typeOfVeggie;
 }

@@ -13,12 +13,6 @@ public class Drift : NetworkBehaviour
     }
     public DriftDirection driftDirection;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -26,33 +20,49 @@ public class Drift : NetworkBehaviour
         {
             return;
         }
-        //transform.Translate(new Vector3(-1, 0, 0)); 
-        transform.Translate(Vector3.right * Time.deltaTime * speed * (int)driftDirection); 
+        
+        transform.Translate(Vector3.right * speed * Time.deltaTime * (int)driftDirection);
 
         if (transform.position.x < -80 || transform.position.x > 80)
         {
-            for(int i  = 0; i < transform.childCount; i++)
+            for (int i = 0; i < transform.childCount; i++)
             {
                 NetworkObject player = transform.GetChild(i).GetComponent<NetworkObject>();
-                player.TryRemoveParent(); // sets the parent of player to this
+                player.TryRemoveParent();
             }
+            
             Destroy(gameObject);
         }
     }
-    private void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)
     {
+        if (!IsServer)
+        {
+            return;
+        }
+
         if (collision.gameObject.CompareTag("Player"))
         {
             NetworkObject player = collision.gameObject.GetComponent<NetworkObject>();
-            player.TrySetParent(transform); // sets the parent of player to this
+            player.TrySetParent(transform);
         }
     }
-    private void OnCollisionExit(Collision collision)
+    void OnCollisionExit(Collision collision)
     {
+        if (!IsServer)
+        {
+            return;
+        }
+
         if (collision.gameObject.CompareTag("Player"))
         {
             NetworkObject player = collision.gameObject.GetComponent<NetworkObject>();
-            player.TryRemoveParent(); // sets the parent of player to this
+            player.TryRemoveParent();
         }
     }
+
+    // void OnDestroy()
+    // {
+        
+    // }
 }

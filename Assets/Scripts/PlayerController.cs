@@ -1,23 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Unity.Netcode;
 
 public class PlayerController : NetworkBehaviour
 {
-    // Class level variables
     private Rigidbody rbPlayer;
     private Vector3 direction = Vector3.zero;
-
     [SerializeField]
     private float forceMultiplier = 1.0f;
-
     [SerializeField]
     private ForceMode forceMode;
     public GameObject[] spawnPoints;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
         rbPlayer = GetComponent<Rigidbody>();
@@ -33,14 +28,12 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        // local variables - they're local to Update, but not to other methods
         float horizontalVelocity = Input.GetAxis("Horizontal");
         float verticalVelocity = Input.GetAxis("Vertical");
 
         direction = new Vector3(horizontalVelocity, 0, verticalVelocity);
     }
 
-    // Fixed Update is called once per frame. along with the Unity's Physics Engine
     void FixedUpdate()
     {
         if (!IsLocalPlayer)
@@ -57,14 +50,19 @@ public class PlayerController : NetworkBehaviour
             MoveRpc(direction);
         }
     }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, direction * 10);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, rbPlayer.velocity * 5);
+    }
+
     private void Move(Vector3 input)
     {
         rbPlayer.AddForce(input * forceMultiplier, forceMode);
-
-        // rbPlayer.AddForce(new Vector3(horizontalVelocity, 0f, verticalVelocity), ForceMode.Impulse);
-
-        // Vector3 force = new Vector3 (horizontalVelocity, verticalVelocity, 0f);
-        // rbPlayer.AddForce(force, ForceMode.Impulse);
 
         if (transform.position.z > 38)
         {
@@ -76,8 +74,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    // Remote Procedural Calls
-    // These Methods are requesting the server to call the procedure
     [Rpc(SendTo.Server)]
     public void MoveRpc(Vector3 input)
     {
@@ -87,21 +83,23 @@ public class PlayerController : NetworkBehaviour
     private void Respawn()
     {
         int index = 0;
-        while (Physics.CheckBox(spawnPoints[index].transform.position, new Vector3(1.0f, 1.0f, 1.0f)))
+        while (Physics.CheckBox(spawnPoints[index].transform.position, new Vector3(1.5f, 1.5f, 1.5f)))
         {
             index++;
         }
+
         rbPlayer.MovePosition(spawnPoints[index].transform.position);
+        rbPlayer.velocity = Vector3.zero;
     }
- 
-    private void OnTriggerExit(Collider other)
+
+    void OnTriggerExit(Collider collider)
     {
         if (!IsServer)
         {
             return;
         }
 
-        if (other.CompareTag("Hazard"))
+        if (collider.CompareTag("Hazard"))
         {
             Respawn();
         }
