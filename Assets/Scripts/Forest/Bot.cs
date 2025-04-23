@@ -14,6 +14,18 @@ public class Bot : MonoBehaviour
     public GameObject[] hidingSpots;
     private Rigidbody rbTarget;
 
+    //public Mode aiMode;
+
+    //public enum Mode
+    //{
+    //    SEEK,
+    //    FLEE,
+    //    PURSUE,
+    //    EVADE,
+    //    WANDER
+    //}
+
+
     float currentSpeed
     {
         get { return agent.velocity.magnitude; }
@@ -45,13 +57,19 @@ public class Bot : MonoBehaviour
 
         Vector3 targetDir = target.transform.position - this.transform.position;
 
-        float relativeHeading = Vector3.Angle(this.transform.forward, target.transform.forward);
+        //float relativeHeading = Vector3.Angle(this.transform.forward, this.transform.TransformVector(target.transform.forward));
 
+        // this is the angle between the forward vectors
+        float relativeHeading = Vector3.Angle(this.transform.forward, this.transform.forward);
+
+        //float toTarget = Vector3.Angle(this.transform.forward, this.transform.TransformVector(targetDir));
+
+        // this is the angle between the pursuers forward vector and the targetdir
         float toTarget = Vector3.Angle(this.transform.forward, targetDir);
 
-        // if the pursuer is in front and going in about the same direction as target,
-        // or the target's velocity is pretty much zero,
-        // then, just seek
+        // if the pursuer is in front of the target and going in about the same direction
+        // or if the amount of the target's velocity is very close to 0
+        // then just seek
         if ((toTarget > 90 && relativeHeading < 20) || rbTarget.velocity.magnitude < 0.01f)
         {
             Seek(target.transform.position);
@@ -64,6 +82,10 @@ public class Bot : MonoBehaviour
 
     public void Evade()
     {
+        //Vector3 targetLocation = target.transform.position + rbTarget.velocity;
+
+        //Flee(targetLocation);
+
         Vector3 targetDir = target.transform.position - this.transform.position;
         float lookAhead = targetDir.magnitude / (agent.speed + rbTarget.velocity.magnitude);
         Flee(target.transform.position + target.transform.forward * lookAhead);
@@ -75,16 +97,16 @@ public class Bot : MonoBehaviour
     {
         float wanderRadius = 10;
         float wanderDistance = Random.Range(-10.0f, 10.0f);
-        float wanderJitter = 1;
+        float wanderJitter = 1; // allows you to scale the variance to give more or less jitter
 
         wanderTarget += new Vector3(Random.Range(-1.0f, 1.0f) * wanderJitter,
                                     0,
                                     Random.Range(-1.0f, 1.0f) * wanderJitter);
-        wanderTarget.Normalize();
-        wanderTarget *= wanderRadius;
+        wanderTarget.Normalize(); // changes the magnitude of the vector to 1
+        wanderTarget *= wanderRadius; // multiplies the normalized vector by the radius of the circle
 
         Vector3 targetLocal = wanderTarget + new Vector3(0, 0, wanderDistance);
-        // Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
+        //Vector3 targetWorld = this.gameObject.transform.InverseTransformVector(targetLocal);
 
         Seek(this.transform.position + targetLocal);
     }
@@ -166,4 +188,30 @@ public class Bot : MonoBehaviour
         }
         return false;
     }
+    //private void Update()
+    //{
+    //    switch(aiMode)
+    //    {
+    //        case Mode.SEEK:
+    //            Seek(target.transform.position);
+    //            break;
+
+    //        case Mode.FLEE:
+    //            Flee(target.transform.position);
+    //            break;
+
+    //        case Mode.PURSUE:
+    //            Pursue();
+    //            break;
+
+    //        case Mode.EVADE:
+    //            Evade();
+    //            break;
+
+    //        case Mode.WANDER:
+    //            Wander();
+    //            break;
+
+    //    }
+    //}
 }

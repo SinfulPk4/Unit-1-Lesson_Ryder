@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,24 +6,22 @@ using UnityEngine.AI;
 
 public class Swarm : MonoBehaviour
 {
-    [SerializeField]
-    private List<GameObject> waypoints;
-    [SerializeField]
-    private int WAYPOINT_THRESHOLD = 1;
-
+    [SerializeField] private List<GameObject> waypoints;
+    [SerializeField] private float WAYPOINT_THRESHOLD = 1.0f;
     private int waypointIndex;
     private NavMeshAgent agent;
     private Bot bot;
     private bool hiveNotPickedUp = true;
 
+    // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        bot = GetComponent<Bot>();
-
-        HivePickUp.HivePickedUp += OnHivePickedUp;
-
         agent.SetDestination(waypoints[0].transform.position);
+
+        // register for the hive picked up event
+        HivePickUp.HivePickedUp += OnHivePickedUp;
+        bot = GetComponent<Bot>();
     }
 
     private void OnHivePickedUp()
@@ -30,24 +29,24 @@ public class Swarm : MonoBehaviour
         hiveNotPickedUp = false;
     }
 
+    // Update is called once per frame
     public void Patrol()
     {
-        // if close enough to waypoint, then advance index
+        // If close enough to waypoint, then advance index
         if (Vector3.Distance(transform.position, waypoints[waypointIndex].transform.position) < WAYPOINT_THRESHOLD)
         {
             waypointIndex++;
 
-            // wrap index around to 0 if we reach the end of list
-            if (waypointIndex == waypoints.Count)
+            // wrap the index around to the beginning of the list (index 0)
+            if(waypointIndex == waypoints.Count)
             {
                 waypointIndex = 0;
             }
-
-            agent.SetDestination(waypoints[waypointIndex].transform.position);
         }
-    }
 
-    void Update()
+        agent.SetDestination(waypoints[waypointIndex].transform.position);
+    }
+    private void Update()
     {
         if (hiveNotPickedUp)
         {

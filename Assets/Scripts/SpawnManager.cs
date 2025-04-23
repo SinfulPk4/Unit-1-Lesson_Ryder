@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 
 public class SpawnManager : NetworkBehaviour
 {
     public GameObject[] lilyPads;
 
+    public float spawnRate = 2.0f;
+
+    // OnNetworkSpawn is the network equivalent of start
     public override void OnNetworkSpawn()
     {
         if (!IsServer)
@@ -14,12 +17,17 @@ public class SpawnManager : NetworkBehaviour
             return;
         }
 
-        InvokeRepeating("SpawnLilyPad", 2.0f, 2.0f);
+        InvokeRepeating("SpawnLilyPad", 2.0f, spawnRate);
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
     void SpawnLilyPad()
     {
-        foreach (GameObject lilyPad in lilyPads)
+        foreach (GameObject lilyPad in lilyPads) 
         {
             NetworkObject lilyPadObject = Instantiate(lilyPad).GetComponent<NetworkObject>();
             lilyPadObject.Spawn();

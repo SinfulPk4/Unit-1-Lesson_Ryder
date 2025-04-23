@@ -12,7 +12,6 @@ public class BearAgent : MonoBehaviour
     void Start()
     {
         bot = GetComponent<Bot>();
-
         NavPlayerMovement.DroppedHive += OnHiveDrop;
     }
 
@@ -20,16 +19,16 @@ public class BearAgent : MonoBehaviour
     void Update()
     {
         bool canSeeTarget = bot.CanSeeTarget();
-        
+
         if (!canSeeTarget)
         {
             bot.Wander();
-        } 
+        }
         else if (!hiveDropped)
         {
             bot.Pursue();
         }
-        else if (hiveDropped)
+        if (hiveDropped)
         {
             bot.Seek(hivePosition);
         }
@@ -38,6 +37,6 @@ public class BearAgent : MonoBehaviour
     void OnHiveDrop(Vector3 position)
     {
         hiveDropped = true;
-        hivePosition = position;
+        hivePosition = position;    
     }
 }

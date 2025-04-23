@@ -1,14 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class CountGUI : NetworkBehaviour
 {
     private TextMeshProUGUI tmProElement;
-    public string itemName;
+
     public NetworkVariable<int> count = new NetworkVariable<int>(0);
+
+    public string itemName;
 
     void Start()
     {
@@ -38,15 +41,15 @@ public class CountGUI : NetworkBehaviour
         UpdateText();
     }
 
-    public void UpdateCount()
-    {
-        count.Value++;
-    }
-
     [Rpc(SendTo.Server)]
     public void UpdateCountRpc()
     {
         UpdateCount();
+    }
+
+    public void UpdateCount()
+    {
+        count.Value++;
     }
 
     public void UpdateText()
